@@ -7,6 +7,8 @@ def print_error(message):
 def print_info(message):
     print(f"[INFO] {message}")
 
+index = None
+
 def run_shell():
     while True:
         command = input("> ").strip()
@@ -17,13 +19,19 @@ def run_shell():
 
         elif command == "build":
             print_info("Building index...")
+            # index = build_index(...)
+            index = {}  # placeholder
+            print_success("Index built")
 
         elif command == "load":
             print_info("Loading index...")
+            index = {}  # placeholder
+            print_success("Index loaded")
 
         elif command.startswith("print "):
-            word = command[6:].strip()
-            print_info(f"Printing results for: {word}")
+            if index is None:
+                print_error("No index loaded. Run 'build' or 'load' first.")
+                continue
 
         elif command.startswith("find "):
             query = command[5:].strip()
