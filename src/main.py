@@ -15,7 +15,7 @@ def run_shell():
         
         if not command:
             continue
-        
+
         if command == "exit":
             print_info("Exiting...")
             break
@@ -45,3 +45,7 @@ def run_shell():
 
         else:
             print_error("Invalid command")
+
+
+if __name__ == "__main__":
+    run_shell()
