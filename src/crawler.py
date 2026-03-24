@@ -3,10 +3,11 @@ crawler.py
 
 Core crawler logic for the COMP3011 coursework search tool.
 
-This stage focuses on:
+This module is responsible for:
 - downloading pages from quotes.toscrape.com
 - extracting quote content from each page
 - following pagination links
+- returning structured page records for indexing
 """
 
 from urllib.parse import urljoin
@@ -116,3 +117,32 @@ def find_next_page(html: str, current_url: str) -> str | None:
 
     # Convert the relative link into an absolute URL
     return urljoin(current_url, next_link["href"])
+
+
+def crawl_site(start_url: str) -> list[dict]:
+    """
+    Crawl the website from the starting URL until no next page exists.
+
+    Parameters:
+        start_url (str): The first page to crawl.
+
+    Returns:
+        list[dict]: A list of structured page records.
+    """
+    crawled_pages = []
+    current_url = start_url
+    page_number = 1
+
+    while current_url:
+        # Download the current page
+        html = fetch_page(current_url)
+
+        # Parse the downloaded page into a structured record
+        page_record = parse_page(html, current_url, page_number)
+        crawled_pages.append(page_record)
+
+        # Move to the next page if one exists
+        current_url = find_next_page(html, current_url)
+        page_number += 1
+
+    return crawled_pages
