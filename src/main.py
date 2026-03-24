@@ -29,13 +29,16 @@ def run_shell():
             print_success("Index loaded")
 
         elif command.startswith("print "):
-            if index is None:
-                print_error("No index loaded. Run 'build' or 'load' first.")
+            word = command[6:].strip()
+            if not word:
+                print_error("Please provide a word to print")
                 continue
 
         elif command.startswith("find "):
             query = command[5:].strip()
-            print_info(f"Searching for: {query}")
+            if not query:
+                print_error("Query cannot be empty")
+                continue
 
         else:
             print_error("Invalid command")
