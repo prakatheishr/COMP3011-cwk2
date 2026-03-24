@@ -6,8 +6,10 @@ Core crawler logic for the COMP3011 coursework search tool.
 This stage focuses on:
 - downloading pages from quotes.toscrape.com
 - extracting quote content from each page
-- preparing functions for pagination and crawl flow
+- following pagination links
 """
+
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -86,3 +88,31 @@ def parse_page(html: str, url: str, page_number: int) -> dict:
         "content": combined_content,
         "quotes": quotes,
     }
+
+
+def find_next_page(html: str, current_url: str) -> str | None:
+    """
+    Find the URL of the next page in the pagination sequence.
+
+    Parameters:
+        html (str): Raw HTML of the current page.
+        current_url (str): URL of the current page.
+
+    Returns:
+        str | None: Absolute URL of the next page, or None if no next page exists.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    # quotes.toscrape.com stores the next-page link inside:
+    # <li class="next"><a href="/page/2/">Next →</a></li>
+    next_li = soup.find("li", class_="next")
+
+    if not next_li:
+        return None
+
+    next_link = next_li.find("a")
+    if not next_link or "href" not in next_link.attrs:
+        return None
+
+    # Convert the relative link into an absolute URL
+    return urljoin(current_url, next_link["href"])
