@@ -12,7 +12,10 @@ index = None
 def run_shell():
     while True:
         command = input("> ").strip()
-
+        
+        if not command:
+            continue
+        
         if command == "exit":
             print_info("Exiting...")
             break
