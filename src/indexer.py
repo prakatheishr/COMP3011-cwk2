@@ -116,3 +116,17 @@ def build_index(crawled_pages: list[dict]) -> dict:
                 terms_seen_in_page.add(token)
 
     return index
+
+def get_index_summary(index: dict) -> dict:
+    """
+    Generate a simple summary of the inverted index.
+
+    Parameters:
+        index (dict): The inverted index.
+
+    Returns:
+        dict: Summary statistics including total unique terms.
+    """
+    return {
+        "unique_terms": len(index),
+    }
