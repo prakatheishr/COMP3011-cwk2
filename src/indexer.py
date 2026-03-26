@@ -76,8 +76,12 @@ def build_index(crawled_pages: list[dict]) -> dict:
 
     # Process each crawled page one at a time
     for page in crawled_pages:
-        page_url = page["url"]
-        page_content = page["content"]
+        page_url = page.get("url")
+        page_content = page.get("content", "")
+
+        # Skip malformed page records that do not have a valid URL
+        if not page_url:
+            continue
 
         # Tokenize the page content into normalized words
         tokens = tokenize(page_content)
