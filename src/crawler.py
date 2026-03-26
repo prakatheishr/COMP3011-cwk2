@@ -144,19 +144,21 @@ def find_next_page(html: str, current_url: str) -> str | None:
     """
     soup = BeautifulSoup(html, "html.parser")
 
-    # quotes.toscrape.com stores the next-page link inside:
-    # <li class="next"><a href="/page/2/">Next →</a></li>
+    # Locate the pagination control for the next page
     next_li = soup.find("li", class_="next")
-
-    if not next_li:
+    if next_li is None:
         return None
 
     next_link = next_li.find("a")
-    if not next_link or "href" not in next_link.attrs:
+    if next_link is None:
         return None
 
-    # Convert the relative link into an absolute URL
-    return urljoin(current_url, next_link["href"])
+    href = next_link.get("href")
+    if not href:
+        return None
+
+    # Convert relative pagination links into absolute URLs
+    return urljoin(current_url, href)
 
 
 def crawl_site(start_url: str) -> list[dict]:
