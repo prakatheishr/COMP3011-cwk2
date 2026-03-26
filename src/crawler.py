@@ -8,14 +8,37 @@ This module is responsible for:
 - extracting quote content from each page
 - following pagination links
 - returning structured page records for indexing
+- enforcing a politeness delay between requests
 """
 
 from urllib.parse import urljoin
+import time
 
 import requests
 from bs4 import BeautifulSoup
 
 
+def wait_if_needed(last_request_time: float | None, delay: int = 6) -> None:
+    """
+    Enforce a minimum delay between HTTP requests.
+
+    Parameters:
+        last_request_time (float | None): Timestamp of the previous request,
+            or None if no request has been made yet.
+        delay (int): Minimum number of seconds required between requests.
+    """
+    # If this is the first request, there is nothing to wait for
+    if last_request_time is None:
+        return
+
+    # Calculate how much time has passed since the previous request
+    elapsed_time = time.time() - last_request_time
+
+    # Only sleep if less than the required delay has passed
+    if elapsed_time < delay:
+        time.sleep(delay - elapsed_time)
+
+        
 def fetch_page(url: str) -> str:
     """
     Download a page and return its HTML content.
