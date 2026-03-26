@@ -8,15 +8,38 @@ This module is responsible for:
 - extracting quote content from each page
 - following pagination links
 - returning structured page records for indexing
+- enforcing a politeness delay between requests
 """
 
 from urllib.parse import urljoin
+import time
 
 import requests
 from bs4 import BeautifulSoup
 
 
-def fetch_page(url: str) -> str:
+def wait_if_needed(last_request_time: float | None, delay: int = 6) -> None:
+    """
+    Enforce a minimum delay between HTTP requests.
+
+    Parameters:
+        last_request_time (float | None): Timestamp of the previous request,
+            or None if no request has been made yet.
+        delay (int): Minimum number of seconds required between requests.
+    """
+    # If this is the first request, there is nothing to wait for
+    if last_request_time is None:
+        return
+
+    # Calculate how much time has passed since the previous request
+    elapsed_time = time.time() - last_request_time
+
+    # Only sleep if less than the required delay has passed
+    if elapsed_time < delay:
+        time.sleep(delay - elapsed_time)
+
+
+def fetch_page(url: str) -> str | None:
     """
     Download a page and return its HTML content.
 
@@ -24,11 +47,26 @@ def fetch_page(url: str) -> str:
         url (str): The URL to fetch.
 
     Returns:
-        str: Raw HTML content of the page.
+        str | None:
+            Raw HTML content of the page if successful,
+            otherwise None if the request fails.
     """
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
-    return response.text
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.text
+
+    except requests.Timeout:
+        print(f"[ERROR] Request timed out while fetching: {url}")
+        return None
+
+    except requests.HTTPError as error:
+        print(f"[ERROR] HTTP error while fetching {url}: {error}")
+        return None
+
+    except requests.RequestException as error:
+        print(f"[ERROR] Network error while fetching {url}: {error}")
+        return None
 
 
 def parse_page(html: str, url: str, page_number: int) -> dict:
@@ -63,15 +101,17 @@ def parse_page(html: str, url: str, page_number: int) -> dict:
 
         quote_text = text_tag.get_text(strip=True) if text_tag else ""
         author = author_tag.get_text(strip=True) if author_tag else ""
-        tags = [tag.get_text(strip=True) for tag in tag_elements]
+        tags = [tag.get_text(strip=True) for tag in tag_elements] if tag_elements else []
 
-        quotes.append(
-            {
-                "text": quote_text,
-                "author": author,
-                "tags": tags,
-            }
-        )
+        # Only add a quote record if at least one meaningful field exists
+        if quote_text or author or tags:
+            quotes.append(
+                {
+                    "text": quote_text,
+                    "author": author,
+                    "tags": tags,
+                }
+            )
 
         # Build a combined content string for later indexing
         if quote_text:
@@ -104,19 +144,21 @@ def find_next_page(html: str, current_url: str) -> str | None:
     """
     soup = BeautifulSoup(html, "html.parser")
 
-    # quotes.toscrape.com stores the next-page link inside:
-    # <li class="next"><a href="/page/2/">Next →</a></li>
+    # Locate the pagination control for the next page
     next_li = soup.find("li", class_="next")
-
-    if not next_li:
+    if next_li is None:
         return None
 
     next_link = next_li.find("a")
-    if not next_link or "href" not in next_link.attrs:
+    if next_link is None:
         return None
 
-    # Convert the relative link into an absolute URL
-    return urljoin(current_url, next_link["href"])
+    href = next_link.get("href")
+    if not href:
+        return None
+
+    # Convert relative pagination links into absolute URLs
+    return urljoin(current_url, href)
 
 
 def crawl_site(start_url: str) -> list[dict]:
@@ -132,10 +174,22 @@ def crawl_site(start_url: str) -> list[dict]:
     crawled_pages = []
     current_url = start_url
     page_number = 1
+    last_request_time = None
 
     while current_url:
+        # Enforce the politeness window before making the next request
+        wait_if_needed(last_request_time, delay=6)
+
         # Download the current page
         html = fetch_page(current_url)
+
+        # Record the request completion time after the fetch attempt
+        last_request_time = time.time()
+
+        # If fetching failed, stop the crawl gracefully
+        if html is None:
+            print(f"[ERROR] Crawling stopped because page {page_number} could not be fetched.")
+            break
 
         # Parse the downloaded page into a structured record
         page_record = parse_page(html, current_url, page_number)

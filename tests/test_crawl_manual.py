@@ -7,11 +7,16 @@ This is useful during implementation before proper pytest tests are added.
 
 from src.crawler import crawl_site
 
+
 def main() -> None:
     """
     Run a quick manual crawler check and print a summary of results.
     """
     pages = crawl_site("https://quotes.toscrape.com/")
+
+    if not pages:
+        print("[ERROR] No pages were crawled.")
+        return
 
     print(f"Total pages crawled: {len(pages)}")
     print(f"First page URL: {pages[0]['url']}")
