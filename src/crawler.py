@@ -39,7 +39,7 @@ def wait_if_needed(last_request_time: float | None, delay: int = 6) -> None:
         time.sleep(delay - elapsed_time)
 
 
-def fetch_page(url: str) -> str:
+def fetch_page(url: str) -> str | None:
     """
     Download a page and return its HTML content.
 
@@ -47,11 +47,26 @@ def fetch_page(url: str) -> str:
         url (str): The URL to fetch.
 
     Returns:
-        str: Raw HTML content of the page.
+        str | None:
+            Raw HTML content of the page if successful,
+            otherwise None if the request fails.
     """
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
-    return response.text
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.text
+
+    except requests.Timeout:
+        print(f"[ERROR] Request timed out while fetching: {url}")
+        return None
+
+    except requests.HTTPError as error:
+        print(f"[ERROR] HTTP error while fetching {url}: {error}")
+        return None
+
+    except requests.RequestException as error:
+        print(f"[ERROR] Network error while fetching {url}: {error}")
+        return None
 
 
 def parse_page(html: str, url: str, page_number: int) -> dict:
