@@ -38,7 +38,7 @@ def wait_if_needed(last_request_time: float | None, delay: int = 6) -> None:
     if elapsed_time < delay:
         time.sleep(delay - elapsed_time)
 
-        
+
 def fetch_page(url: str) -> str:
     """
     Download a page and return its HTML content.
@@ -155,10 +155,17 @@ def crawl_site(start_url: str) -> list[dict]:
     crawled_pages = []
     current_url = start_url
     page_number = 1
+    last_request_time = None
 
     while current_url:
+        # Enforce the politeness window before making the next request
+        wait_if_needed(last_request_time, delay=6)
+
         # Download the current page
         html = fetch_page(current_url)
+
+        # Record the time immediately after the request completes
+        last_request_time = time.time()
 
         # Parse the downloaded page into a structured record
         page_record = parse_page(html, current_url, page_number)
