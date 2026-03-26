@@ -11,6 +11,17 @@ This module is responsible for:
 
 import re
 
+def create_term_entry() -> dict:
+    """
+    Create the default structure for a new term in the inverted index.
+
+    Returns:
+        dict: Empty term entry with document frequency and page postings.
+    """
+    return {
+        "document_frequency": 0,
+        "pages": {},
+    }
 
 def tokenize(text: str) -> list[str]:
     """
