@@ -101,15 +101,17 @@ def parse_page(html: str, url: str, page_number: int) -> dict:
 
         quote_text = text_tag.get_text(strip=True) if text_tag else ""
         author = author_tag.get_text(strip=True) if author_tag else ""
-        tags = [tag.get_text(strip=True) for tag in tag_elements]
+        tags = [tag.get_text(strip=True) for tag in tag_elements] if tag_elements else []
 
-        quotes.append(
-            {
-                "text": quote_text,
-                "author": author,
-                "tags": tags,
-            }
-        )
+        # Only add a quote record if at least one meaningful field exists
+        if quote_text or author or tags:
+            quotes.append(
+                {
+                    "text": quote_text,
+                    "author": author,
+                    "tags": tags,
+                }
+            )
 
         # Build a combined content string for later indexing
         if quote_text:
