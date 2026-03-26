@@ -179,8 +179,13 @@ def crawl_site(start_url: str) -> list[dict]:
         # Download the current page
         html = fetch_page(current_url)
 
-        # Record the time immediately after the request completes
+        # Record the request completion time after the fetch attempt
         last_request_time = time.time()
+
+        # If fetching failed, stop the crawl gracefully
+        if html is None:
+            print(f"[ERROR] Crawling stopped because page {page_number} could not be fetched.")
+            break
 
         # Parse the downloaded page into a structured record
         page_record = parse_page(html, current_url, page_number)
