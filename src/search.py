@@ -39,6 +39,7 @@ def get_word_entry(index: dict, word: str) -> dict | None:
 
     return index.get(normalized_word)
 
+
 def get_pages_for_term(index: dict, term: str) -> set[str]:
     """
     Return the set of page URLs containing a given term.
@@ -57,3 +58,37 @@ def get_pages_for_term(index: dict, term: str) -> set[str]:
         return set()
 
     return set(entry["pages"].keys())
+
+
+def find_query(index: dict, query: str) -> list[str]:
+    """
+    Search the inverted index for a query string.
+
+    Query behaviour:
+    - normalize query using the shared tokenizer
+    - if one term is present, return all matching pages
+    - if multiple terms are present, return only pages containing all terms
+
+    Parameters:
+        index (dict): The inverted index.
+        query (str): Raw query string.
+
+    Returns:
+        list[str]: Sorted list of matching page URLs.
+    """
+    # Normalize the query using the same tokenizer as indexing
+    query_terms = tokenize(query)
+
+    # If the query becomes empty after normalization, return no matches
+    if not query_terms:
+        return []
+
+    # Get the page set for the first query term
+    matching_pages = get_pages_for_term(index, query_terms[0])
+
+    # Intersect with page sets for each remaining query term
+    for term in query_terms[1:]:
+        matching_pages = matching_pages.intersection(get_pages_for_term(index, term))
+
+    # Return results in sorted order for deterministic output
+    return sorted(matching_pages)
