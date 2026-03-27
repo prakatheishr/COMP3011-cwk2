@@ -38,3 +38,22 @@ def get_word_entry(index: dict, word: str) -> dict | None:
     normalized_word = tokens[0]
 
     return index.get(normalized_word)
+
+def get_pages_for_term(index: dict, term: str) -> set[str]:
+    """
+    Return the set of page URLs containing a given term.
+
+    Parameters:
+        index (dict): The inverted index.
+        term (str): The term to search for.
+
+    Returns:
+        set[str]: Set of page URLs containing the term.
+    """
+    entry = get_word_entry(index, term)
+
+    # If the word is not found, return an empty set
+    if entry is None:
+        return set()
+
+    return set(entry["pages"].keys())
