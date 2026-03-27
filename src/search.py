@@ -124,3 +124,18 @@ def find_query(index: dict, query: str) -> list[str]:
 
     # Return results in sorted order for deterministic output
     return sorted(matching_pages)
+
+def get_query_summary(results: list[str]) -> dict:
+    """
+    Generate a small summary for a search result set.
+
+    Parameters:
+        results (list[str]): List of matching page URLs.
+
+    Returns:
+        dict: Summary information for later CLI use.
+    """
+    return {
+        "match_count": len(results),
+        "pages": results,
+    }
