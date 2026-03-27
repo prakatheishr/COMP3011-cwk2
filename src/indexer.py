@@ -151,3 +151,18 @@ def save_index(index: dict, filepath: str) -> None:
     # Write JSON file with indentation for readability
     with output_path.open("w", encoding="utf-8") as file:
         json.dump(index, file, indent=4)
+
+def load_index(filepath: str) -> dict:
+    """
+    Load an inverted index from a JSON file.
+
+    Parameters:
+        filepath (str): Path to the saved JSON file.
+
+    Returns:
+        dict: Loaded inverted index.
+    """
+    input_path = Path(filepath)
+
+    with input_path.open("r", encoding="utf-8") as file:
+        return json.load(file)
