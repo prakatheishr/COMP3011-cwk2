@@ -30,6 +30,45 @@ def print_info(message):
 
 index = None
 
+def handle_build() -> dict | None:
+    """
+    Build the inverted index from the live website.
+
+    This command:
+    - crawls the quotes website
+    - builds the inverted index
+    - saves the index to disk
+    - returns the index for in-memory use
+
+    Returns:
+        dict | None:
+            The built index if successful, otherwise None.
+    """
+    print_info("Building index from live website...")
+
+    # Crawl the target site
+    pages = crawl_site(START_URL)
+
+    if not pages:
+        print_error("No pages were crawled. Index build failed.")
+        return None
+
+    # Build the inverted index from crawled page content
+    index = build_index(pages)
+
+    # Save the index to disk for later loading
+    save_index(index, INDEX_FILEPATH)
+
+    # Generate summary information for user feedback
+    summary = get_index_summary(index)
+
+    print_success(
+        f"Index built successfully: {len(pages)} pages crawled, "
+        f"{summary['unique_terms']} unique terms saved to {INDEX_FILEPATH}"
+    )
+
+    return index
+
 def run_shell():
     while True:
         command = input("> ").strip()
