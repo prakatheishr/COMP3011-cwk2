@@ -88,7 +88,28 @@ def handle_load() -> dict | None:
     print_success(f"Index loaded successfully from {INDEX_FILEPATH}")
     return index
 
+def handle_print(index: dict | None, word: str) -> None:
+    """
+    Print the inverted index entry for a given word.
 
+    Parameters:
+        index (dict | None): The current in-memory index.
+        word (str): The word to look up.
+    """
+    if index is None:
+        print_error("No index loaded. Run 'build' or 'load' first.")
+        return
+
+    word_entry = format_word_entry(index, word)
+
+    if word_entry is None:
+        print_error(f"Word not found in index: {word}")
+        return
+
+    print_info(f"Word '{word_entry['word']}' found in {word_entry['document_frequency']} page(s)")
+    print(word_entry)
+
+    
 def run_shell():
     while True:
         command = input("> ").strip()
