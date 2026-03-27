@@ -69,6 +69,26 @@ def handle_build() -> dict | None:
 
     return index
 
+def handle_load() -> dict | None:
+    """
+    Load the saved inverted index from disk.
+
+    Returns:
+        dict | None:
+            The loaded index if successful, otherwise None.
+    """
+    print_info(f"Loading index from {INDEX_FILEPATH}...")
+
+    index = load_index(INDEX_FILEPATH)
+
+    if index is None:
+        print_error("Index could not be loaded.")
+        return None
+
+    print_success(f"Index loaded successfully from {INDEX_FILEPATH}")
+    return index
+
+
 def run_shell():
     while True:
         command = input("> ").strip()
