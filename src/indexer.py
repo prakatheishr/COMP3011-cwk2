@@ -152,7 +152,7 @@ def save_index(index: dict, filepath: str) -> None:
     with output_path.open("w", encoding="utf-8") as file:
         json.dump(index, file, indent=4)
 
-def load_index(filepath: str) -> dict:
+def load_index(filepath: str) -> dict | None:
     """
     Load an inverted index from a JSON file.
 
@@ -160,9 +160,20 @@ def load_index(filepath: str) -> dict:
         filepath (str): Path to the saved JSON file.
 
     Returns:
-        dict: Loaded inverted index.
+        dict | None:
+            Loaded index if successful, otherwise None.
     """
     input_path = Path(filepath)
 
-    with input_path.open("r", encoding="utf-8") as file:
-        return json.load(file)
+    # Check if file exists
+    if not input_path.exists():
+        print(f"[ERROR] Index file not found: {filepath}")
+        return None
+
+    try:
+        with input_path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+
+    except json.JSONDecodeError:
+        print(f"[ERROR] Invalid JSON format in: {filepath}")
+        return None
