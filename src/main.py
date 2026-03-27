@@ -132,44 +132,50 @@ def handle_find(index: dict | None, query: str) -> None:
     for page in summary["pages"]:
         print(page)
 
-        
-def run_shell():
+
+def run_shell() -> None:
+    """
+    Run the interactive command-line shell.
+    """
+    # Keep the currently loaded index in memory across commands
+    index = None
+
+    print_info("COMP3011 Search Tool")
+    print_info("Available commands: build, load, print <word>, find <query>, exit")
+
     while True:
         command = input("> ").strip()
-        
+
+        # Ignore empty input
         if not command:
             continue
 
         if command == "exit":
-            print_info("Exiting...")
+            print_info("Exiting search tool...")
             break
 
         elif command == "build":
-            print_info("Building index...")
-            # index = build_index(...)
-            index = {}  # placeholder
-            print_success("Index built")
+            index = handle_build()
 
         elif command == "load":
-            print_info("Loading index...")
-            index = {}  # placeholder
-            print_success("Index loaded")
+            index = handle_load()
 
         elif command.startswith("print "):
             word = command[6:].strip()
             if not word:
-                print_error("Please provide a word to print")
+                print_error("Please provide a word to print.")
                 continue
+            handle_print(index, word)
 
         elif command.startswith("find "):
             query = command[5:].strip()
             if not query:
-                print_error("Query cannot be empty")
+                print_error("Query cannot be empty.")
                 continue
+            handle_find(index, query)
 
         else:
-            print_error("Invalid command")
-
+            print_error("Invalid command.")
 
 if __name__ == "__main__":
     run_shell()
