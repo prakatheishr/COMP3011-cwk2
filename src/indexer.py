@@ -177,3 +177,15 @@ def load_index(filepath: str) -> dict | None:
     except json.JSONDecodeError:
         print(f"[ERROR] Invalid JSON format in: {filepath}")
         return None
+    
+def index_file_exists(filepath: str) -> bool:
+    """
+    Check if the index file exists on disk.
+
+    Parameters:
+        filepath (str): Path to index file.
+
+    Returns:
+        bool: True if file exists, False otherwise.
+    """
+    return Path(filepath).exists()
