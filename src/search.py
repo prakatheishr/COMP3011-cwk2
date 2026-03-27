@@ -83,11 +83,20 @@ def find_query(index: dict, query: str) -> list[str]:
     if not query_terms:
         return []
 
-    # Get the page set for the first query term
-    matching_pages = get_pages_for_term(index, query_terms[0])
+    # Remove duplicate query terms while preserving order
+    unique_terms = []
+    seen_terms = set()
 
-    # Intersect with page sets for each remaining query term
-    for term in query_terms[1:]:
+    for term in query_terms:
+        if term not in seen_terms:
+            unique_terms.append(term)
+            seen_terms.add(term)
+
+    # Get the page set for the first unique term
+    matching_pages = get_pages_for_term(index, unique_terms[0])
+
+    # Intersect with page sets for each remaining unique term
+    for term in unique_terms[1:]:
         matching_pages = matching_pages.intersection(get_pages_for_term(index, term))
 
     # Return results in sorted order for deterministic output
