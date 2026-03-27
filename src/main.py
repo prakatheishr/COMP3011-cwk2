@@ -109,7 +109,30 @@ def handle_print(index: dict | None, word: str) -> None:
     print_info(f"Word '{word_entry['word']}' found in {word_entry['document_frequency']} page(s)")
     print(word_entry)
 
-    
+def handle_find(index: dict | None, query: str) -> None:
+    """
+    Search the index for a query and print matching pages.
+
+    Parameters:
+        index (dict | None): The current in-memory index.
+        query (str): The raw query string.
+    """
+    if index is None:
+        print_error("No index loaded. Run 'build' or 'load' first.")
+        return
+
+    results = find_query(index, query)
+    summary = get_query_summary(results)
+
+    if not results:
+        print_error(f"No results found for query: {query}")
+        return
+
+    print_info(f"Query '{query}' matched {summary['match_count']} page(s)")
+    for page in summary["pages"]:
+        print(page)
+
+        
 def run_shell():
     while True:
         command = input("> ").strip()
