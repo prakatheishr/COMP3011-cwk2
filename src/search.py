@@ -39,6 +39,29 @@ def get_word_entry(index: dict, word: str) -> dict | None:
 
     return index.get(normalized_word)
 
+def format_word_entry(index: dict, word: str) -> dict | None:
+    """
+    Return a formatted word entry for display purposes.
+
+    Parameters:
+        index (dict): The inverted index.
+        word (str): The word to format.
+
+    Returns:
+        dict | None:
+            A simplified display-friendly structure if the word exists,
+            otherwise None.
+    """
+    entry = get_word_entry(index, word)
+
+    if entry is None:
+        return None
+
+    return {
+        "word": tokenize(word)[0],
+        "document_frequency": entry["document_frequency"],
+        "pages": entry["pages"],
+    }
 
 def get_pages_for_term(index: dict, term: str) -> set[str]:
     """
