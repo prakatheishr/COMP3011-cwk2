@@ -1,3 +1,24 @@
+"""
+main.py
+
+Interactive command-line shell for the COMP3011 coursework search tool.
+
+This module is responsible for:
+- running the CLI loop
+- connecting crawler, indexer, persistence, and search logic
+- handling user commands such as build, load, print, find, and exit
+"""
+
+from src.crawler import crawl_site
+from src.indexer import build_index, get_index_summary, load_index, save_index
+from src.search import find_query, format_word_entry, get_query_summary
+
+# Starting page for the crawler
+START_URL = "https://quotes.toscrape.com/"
+
+# Default path used to store the saved index
+INDEX_FILEPATH = "data/index.json"
+
 def print_success(message):
     print(f"[SUCCESS] {message}")
 
