@@ -10,6 +10,8 @@ This module is responsible for:
 """
 
 import re
+import json
+from pathlib import Path
 
 
 def tokenize(text: str) -> list[str]:
@@ -130,3 +132,22 @@ def get_index_summary(index: dict) -> dict:
     return {
         "unique_terms": len(index),
     }
+
+
+def save_index(index: dict, filepath: str) -> None:
+    """
+    Save the inverted index to a JSON file.
+
+    Parameters:
+        index (dict): The inverted index to save.
+        filepath (str): Path to the output JSON file.
+    """
+    # Convert string path into a Path object
+    output_path = Path(filepath)
+
+    # Ensure the directory exists (e.g. data/)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write JSON file with indentation for readability
+    with output_path.open("w", encoding="utf-8") as file:
+        json.dump(index, file, indent=4)
