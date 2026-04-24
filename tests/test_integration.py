@@ -167,3 +167,42 @@ def test_handle_load_reads_saved_index_from_configured_path(tmp_path, monkeypatc
     loaded_index = main.handle_load()
 
     assert loaded_index == index
+
+def test_handle_build_crawls_indexes_saves_and_returns_index(tmp_path, monkeypatch):
+    """
+    handle_build should:
+    - crawl pages
+    - build index
+    - save index
+    - return the in-memory index
+
+    This test mocks crawling so it does not hit the live website.
+    """
+    fake_pages = [
+        {
+            "url": "page1",
+            "content": "life is good",
+        },
+        {
+            "url": "page2",
+            "content": "good friends",
+        },
+    ]
+
+    filepath = tmp_path / "index.json"
+
+    # Redirect the configured index filepath to the temporary file
+    monkeypatch.setattr(main, "INDEX_FILEPATH", str(filepath))
+
+    # Replace live crawling with fake page records
+    monkeypatch.setattr(main, "crawl_site", lambda start_url: fake_pages)
+
+    index = main.handle_build()
+
+    assert index is not None
+    assert "life" in index
+    assert "good" in index
+    assert filepath.exists()
+
+    loaded_index = load_index(str(filepath))
+    assert loaded_index == index
