@@ -85,7 +85,12 @@ def handle_load() -> dict | None:
         print_error("Index could not be loaded.")
         return None
 
-    print_success(f"Index loaded successfully from {INDEX_FILEPATH}")
+    summary = get_index_summary(index)
+
+    print_success(
+        f"Index loaded successfully from {INDEX_FILEPATH} "
+        f"with {summary['unique_terms']} unique terms"
+    )
     return index
 
 def handle_print(index: dict | None, word: str) -> None:
