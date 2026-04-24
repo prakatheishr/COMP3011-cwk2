@@ -161,13 +161,10 @@ def ensure_index_loaded(index: dict | None) -> bool:
 
 def display_search_results(results: list[str]) -> None:
     """
-    Print matching search result pages line by line.
-
-    Parameters:
-        results (list[str]): List of matching page URLs.
+    Display search result URLs line by line.
     """
-    for page in results:
-        print(page)
+    for position, page in enumerate(results, start=1):
+        print(f"{position}. {page}")
 
 def run_shell() -> None:
     """
