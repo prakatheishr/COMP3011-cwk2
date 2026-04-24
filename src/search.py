@@ -10,6 +10,7 @@ This module is responsible for:
 """
 
 from src.indexer import tokenize
+import math
 
 
 def get_word_entry(index: dict, word: str) -> dict | None:
@@ -82,6 +83,18 @@ def get_pages_for_term(index: dict, term: str) -> set[str]:
 
     return set(entry["pages"].keys())
 
+def get_total_documents(index: dict) -> int:
+    """
+    Count the total number of unique pages/documents in the index.
+
+    This is needed for TF-IDF scoring.
+    """
+    all_pages = set()
+
+    for term_data in index.values():
+        all_pages.update(term_data["pages"].keys())
+
+    return len(all_pages)
 
 def find_query(index: dict, query: str) -> list[str]:
     """
@@ -122,8 +135,15 @@ def find_query(index: dict, query: str) -> list[str]:
     for term in unique_terms[1:]:
         matching_pages = matching_pages.intersection(get_pages_for_term(index, term))
 
-    # Return results in sorted order for deterministic output
-    return sorted(matching_pages)
+    ranked_pages = sorted(
+        matching_pages,
+        key=lambda page_url: (
+            -compute_tf_idf_score(index, unique_terms, page_url),
+            page_url,
+        ),
+    )
+
+    return ranked_pages
 
 def get_query_summary(results: list[str]) -> dict:
     """
@@ -139,3 +159,45 @@ def get_query_summary(results: list[str]) -> dict:
         "match_count": len(results),
         "pages": results,
     }
+
+def compute_tf_idf_score(index: dict, query_terms: list[str], page_url: str) -> float:
+    """
+    Compute a simple TF-IDF relevance score for a page.
+
+    TF-IDF combines:
+    - term frequency: how often a query term appears in the page
+    - inverse document frequency: how rare the term is across all pages
+
+    Parameters:
+        index (dict): The inverted index.
+        query_terms (list[str]): Normalized query terms.
+        page_url (str): Page URL being scored.
+
+    Returns:
+        float: TF-IDF relevance score.
+    """
+    total_documents = get_total_documents(index)
+
+    if total_documents == 0:
+        return 0.0
+
+    score = 0.0
+
+    for term in query_terms:
+        if term not in index:
+            continue
+
+        term_data = index[term]
+        document_frequency = term_data["document_frequency"]
+
+        if page_url not in term_data["pages"]:
+            continue
+
+        term_frequency = term_data["pages"][page_url]["frequency"]
+
+        # Smoothed IDF prevents division by zero and keeps scoring stable
+        inverse_document_frequency = math.log((total_documents + 1) / (document_frequency + 1)) + 1
+
+        score += term_frequency * inverse_document_frequency
+
+    return score

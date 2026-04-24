@@ -93,6 +93,16 @@ find good friends
 
 returns only pages that contain both ```good``` and ```friends```.
 
+### Result Ranking
+
+As an extension beyond the core requirements, search results are ranked using a simple TF-IDF (Term Frequency–Inverse Document Frequency) scoring method.
+
+This means:
+- pages where query terms appear more frequently are ranked higher  
+- pages containing more distinctive (less common) terms are prioritised  
+
+Because the inverted index already stores term frequency and document frequency, this ranking is implemented as an additional scoring layer without modifying the underlying index structure.
+
 ## Index Structure
 
 The inverted index stores each term with:
