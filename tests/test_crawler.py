@@ -94,3 +94,71 @@ def test_find_next_page_returns_none_on_last_page():
     )
 
     assert next_url is None
+
+
+import pytest
+import requests
+
+from src.crawler import fetch_page
+
+
+class MockResponse:
+    """
+    Minimal mock response object that behaves like a requests response.
+    """
+
+    def __init__(self, text: str, should_raise: bool = False):
+        self.text = text
+        self.should_raise = should_raise
+
+    def raise_for_status(self):
+        """
+        Simulate requests.Response.raise_for_status().
+        """
+        if self.should_raise:
+            raise requests.HTTPError("Mock HTTP error")
+
+
+def test_fetch_page_returns_html_on_success(monkeypatch):
+    """
+    Check that fetch_page returns HTML when the request succeeds.
+    """
+
+    def mock_get(url, timeout):
+        return MockResponse("<html>success</html>")
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    result = fetch_page("https://quotes.toscrape.com/")
+
+    assert result == "<html>success</html>"
+
+
+def test_fetch_page_returns_none_on_timeout(monkeypatch):
+    """
+    Check that fetch_page handles timeout errors gracefully.
+    """
+
+    def mock_get(url, timeout):
+        raise requests.Timeout("Mock timeout")
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    result = fetch_page("https://quotes.toscrape.com/")
+
+    assert result is None
+
+
+def test_fetch_page_returns_none_on_http_error(monkeypatch):
+    """
+    Check that fetch_page handles HTTP errors gracefully.
+    """
+
+    def mock_get(url, timeout):
+        return MockResponse("<html>error</html>", should_raise=True)
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    result = fetch_page("https://quotes.toscrape.com/bad-page/")
+
+    assert result is None
