@@ -194,6 +194,8 @@ def run_shell() -> None:
             continue
 
         if command == "load":
+            if index is not None:
+                print_info("Index already loaded. This will overwrite the current index.")
             index = handle_load()
             continue
 
