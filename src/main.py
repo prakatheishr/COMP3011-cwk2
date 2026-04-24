@@ -175,6 +175,7 @@ def run_shell() -> None:
 
     print_info("COMP3011 Search Tool")
     print_info("Available commands: build, load, print <word>, find <query>, exit")
+    print_info("Type 'exit' to quit the program.")
 
     while True:
         command = input("> ").strip()
