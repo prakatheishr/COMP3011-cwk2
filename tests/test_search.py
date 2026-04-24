@@ -164,3 +164,37 @@ def test_find_query_repeated_terms_do_not_change_results():
     result = find_query(SAMPLE_INDEX, "life life")
 
     assert result == ["page1", "page2"]
+
+from src.search import get_pages_for_term, get_query_summary
+
+
+def test_get_pages_for_term_returns_page_set():
+    """
+    get_pages_for_term should return a set of pages for a term.
+    """
+    result = get_pages_for_term(SAMPLE_INDEX, "life")
+
+    assert result == {"page1", "page2"}
+
+
+def test_get_pages_for_term_returns_empty_set_for_missing_term():
+    """
+    Missing term should return an empty page set.
+    """
+    result = get_pages_for_term(SAMPLE_INDEX, "missing")
+
+    assert result == set()
+
+
+def test_get_query_summary_returns_match_count_and_pages():
+    """
+    Query summary should return count and pages.
+    """
+    results = ["page1", "page2"]
+
+    summary = get_query_summary(results)
+
+    assert summary == {
+        "match_count": 2,
+        "pages": ["page1", "page2"],
+    }
