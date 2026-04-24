@@ -97,7 +97,6 @@ def handle_print(index: dict | None, word: str) -> None:
     if not ensure_index_loaded(index):
         return
 
-    # Normalize input
     word = word.strip()
 
     if not word:
@@ -114,7 +113,11 @@ def handle_print(index: dict | None, word: str) -> None:
         f"Word '{word_entry['word']}' found in "
         f"{word_entry['document_frequency']} page(s)"
     )
-    print(word_entry)
+
+    for page_url, stats in word_entry["pages"].items():
+        print(f"- {page_url}")
+        print(f"  frequency: {stats['frequency']}")
+        print(f"  positions: {stats['positions']}")
 
 def handle_find(index: dict | None, query: str) -> None:
     """
