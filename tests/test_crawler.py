@@ -162,3 +162,60 @@ def test_fetch_page_returns_none_on_http_error(monkeypatch):
     result = fetch_page("https://quotes.toscrape.com/bad-page/")
 
     assert result is None
+
+from src import crawler
+
+
+def test_crawl_site_traverses_pages_until_no_next(monkeypatch):
+    """
+    Check that crawl_site follows pagination until no next page exists.
+
+    This test mocks fetch_page and wait_if_needed so it does not hit
+    the live site and does not wait 6 seconds between pages.
+    """
+
+    page_1_html = """
+    <html>
+        <body>
+            <div class="quote">
+                <span class="text">“Page one quote.”</span>
+                <small class="author">Author One</small>
+                <a class="tag">pageone</a>
+            </div>
+            <li class="next"><a href="/page/2/">Next</a></li>
+        </body>
+    </html>
+    """
+
+    page_2_html = """
+    <html>
+        <body>
+            <div class="quote">
+                <span class="text">“Page two quote.”</span>
+                <small class="author">Author Two</small>
+                <a class="tag">pagetwo</a>
+            </div>
+        </body>
+    </html>
+    """
+
+    def mock_fetch_page(url):
+        if url == "https://quotes.toscrape.com/":
+            return page_1_html
+        if url == "https://quotes.toscrape.com/page/2/":
+            return page_2_html
+        return None
+
+    def mock_wait_if_needed(last_request_time, delay=6):
+        return None
+
+    monkeypatch.setattr(crawler, "fetch_page", mock_fetch_page)
+    monkeypatch.setattr(crawler, "wait_if_needed", mock_wait_if_needed)
+
+    pages = crawler.crawl_site("https://quotes.toscrape.com/")
+
+    assert len(pages) == 2
+    assert pages[0]["page_number"] == 1
+    assert pages[1]["page_number"] == 2
+    assert pages[0]["url"] == "https://quotes.toscrape.com/"
+    assert pages[1]["url"] == "https://quotes.toscrape.com/page/2/"
