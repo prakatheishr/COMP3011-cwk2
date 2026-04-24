@@ -72,17 +72,13 @@ def handle_build() -> dict | None:
 def handle_load() -> dict | None:
     """
     Load the saved inverted index from disk.
-
-    Returns:
-        dict | None:
-            The loaded index if successful, otherwise None.
     """
     print_info(f"Loading index from {INDEX_FILEPATH}...")
 
     index = load_index(INDEX_FILEPATH)
 
     if index is None:
-        print_error("Index could not be loaded.")
+        print_error("No saved index found. Run 'build' first.")
         return None
 
     summary = get_index_summary(index)
@@ -91,17 +87,21 @@ def handle_load() -> dict | None:
         f"Index loaded successfully from {INDEX_FILEPATH} "
         f"with {summary['unique_terms']} unique terms"
     )
+
     return index
 
 def handle_print(index: dict | None, word: str) -> None:
     """
     Print the inverted index entry for a given word.
-
-    Parameters:
-        index (dict | None): The current in-memory index.
-        word (str): The word to look up.
     """
     if not ensure_index_loaded(index):
+        return
+
+    # Normalize input
+    word = word.strip()
+
+    if not word:
+        print_error("Please provide a valid word.")
         return
 
     word_entry = format_word_entry(index, word)
@@ -110,26 +110,32 @@ def handle_print(index: dict | None, word: str) -> None:
         print_error(f"Word not found in index: {word}")
         return
 
-    print_info(f"Word '{word_entry['word']}' found in {word_entry['document_frequency']} page(s)")
+    print_info(
+        f"Word '{word_entry['word']}' found in "
+        f"{word_entry['document_frequency']} page(s)"
+    )
     print(word_entry)
 
 def handle_find(index: dict | None, query: str) -> None:
     """
     Search the index for a query and print matching pages.
-
-    Parameters:
-        index (dict | None): The current in-memory index.
-        query (str): The raw query string.
     """
     if not ensure_index_loaded(index):
         return
 
+    query = query.strip()
+
+    if not query:
+        print_error("Query cannot be empty.")
+        return
+
     results = find_query(index, query)
-    summary = get_query_summary(results)
 
     if not results:
-        print_error(f"No results found for query: {query}")
+        print_info(f"No matching pages found for query: {query}")
         return
+
+    summary = get_query_summary(results)
 
     print_info(f"Query '{query}' matched {summary['match_count']} page(s)")
     display_search_results(summary["pages"])
@@ -169,6 +175,7 @@ def run_shell() -> None:
 
     print_info("COMP3011 Search Tool")
     print_info("Available commands: build, load, print <word>, find <query>, exit")
+    print_info("Type 'exit' to quit the program.")
 
     while True:
         command = input("> ").strip()
@@ -182,10 +189,14 @@ def run_shell() -> None:
             break
 
         if command == "build":
+            if index is not None:
+                print_info("Index already exists in memory. Rebuilding will overwrite it.")
             index = handle_build()
             continue
 
         if command == "load":
+            if index is not None:
+                print_info("Index already loaded. This will overwrite the current index.")
             index = handle_load()
             continue
 
@@ -205,7 +216,7 @@ def run_shell() -> None:
             handle_find(index, query)
             continue
 
-        print_error("Invalid command.")
+        print_error("Invalid command. Available commands: build, load, print <word>, find <query>, exit")
 
 if __name__ == "__main__":
     run_shell()
