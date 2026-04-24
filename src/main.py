@@ -93,12 +93,15 @@ def handle_load() -> dict | None:
 def handle_print(index: dict | None, word: str) -> None:
     """
     Print the inverted index entry for a given word.
-
-    Parameters:
-        index (dict | None): The current in-memory index.
-        word (str): The word to look up.
     """
     if not ensure_index_loaded(index):
+        return
+
+    # Normalize input
+    word = word.strip()
+
+    if not word:
+        print_error("Please provide a valid word.")
         return
 
     word_entry = format_word_entry(index, word)
@@ -107,7 +110,10 @@ def handle_print(index: dict | None, word: str) -> None:
         print_error(f"Word not found in index: {word}")
         return
 
-    print_info(f"Word '{word_entry['word']}' found in {word_entry['document_frequency']} page(s)")
+    print_info(
+        f"Word '{word_entry['word']}' found in "
+        f"{word_entry['document_frequency']} page(s)"
+    )
     print(word_entry)
 
 def handle_find(index: dict | None, query: str) -> None:
