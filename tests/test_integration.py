@@ -46,3 +46,26 @@ def test_build_save_load_and_search_workflow(tmp_path):
 
     results = find_query(loaded_index, "good friends")
     assert results == ["page1"]
+
+
+def test_loaded_index_returns_no_results_for_missing_query(tmp_path):
+    """
+    Loaded index should return an empty result list for a query
+    where one or more terms do not exist.
+    """
+    pages = [
+        {
+            "url": "page1",
+            "content": "good friends",
+        }
+    ]
+
+    index = build_index(pages)
+
+    filepath = tmp_path / "index.json"
+    save_index(index, str(filepath))
+    loaded_index = load_index(str(filepath))
+
+    results = find_query(loaded_index, "good missingword")
+
+    assert results == []
