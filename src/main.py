@@ -132,8 +132,7 @@ def handle_find(index: dict | None, query: str) -> None:
         return
 
     print_info(f"Query '{query}' matched {summary['match_count']} page(s)")
-    for page in summary["pages"]:
-        print(page)
+    display_search_results(summary["pages"])
 
 def ensure_index_loaded(index: dict | None) -> bool:
     """
@@ -150,6 +149,16 @@ def ensure_index_loaded(index: dict | None) -> bool:
         return False
 
     return True
+
+def display_search_results(results: list[str]) -> None:
+    """
+    Print matching search result pages line by line.
+
+    Parameters:
+        results (list[str]): List of matching page URLs.
+    """
+    for page in results:
+        print(page)
 
 def run_shell() -> None:
     """
