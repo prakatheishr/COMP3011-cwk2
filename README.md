@@ -191,6 +191,12 @@ The index stores frequency and position statistics to support the required `prin
 
 ---
 
+### Multi-word Query Definition
+
+Multi-word queries return only pages that contain **all query terms**, implemented using page-set intersection.
+
+---
+
 ### Persistence
 
 The index is saved as JSON because it is simple, readable, and easy to inspect during testing or demonstration.
@@ -219,6 +225,6 @@ Multi-word search uses intersection between page sets, meaning all query terms m
 
 ---
 
-## GenAI Usage Note
+## GenAI Usage Declaration
 
-Generative AI was used as a development support tool for planning, code structure suggestions, debugging guidance, and reflection. All generated suggestions were reviewed, tested, and adapted manually.
+Generative AI was used as a development support tool for planning, code structure suggestions, debugging guidance, and reflection. All generated suggestions were reviewed, tested, and adapted manually. 
