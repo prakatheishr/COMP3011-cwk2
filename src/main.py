@@ -211,7 +211,7 @@ def run_shell() -> None:
             handle_find(index, query)
             continue
 
-        print_error("Invalid command.")
+        print_error("Invalid command. Available commands: build, load, print <word>, find <query>, exit")
 
 if __name__ == "__main__":
     run_shell()
