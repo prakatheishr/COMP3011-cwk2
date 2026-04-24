@@ -96,8 +96,7 @@ def handle_print(index: dict | None, word: str) -> None:
         index (dict | None): The current in-memory index.
         word (str): The word to look up.
     """
-    if index is None:
-        print_error("No index loaded. Run 'build' or 'load' first.")
+    if not ensure_index_loaded(index):
         return
 
     word_entry = format_word_entry(index, word)
@@ -117,8 +116,7 @@ def handle_find(index: dict | None, query: str) -> None:
         index (dict | None): The current in-memory index.
         query (str): The raw query string.
     """
-    if index is None:
-        print_error("No index loaded. Run 'build' or 'load' first.")
+    if not ensure_index_loaded(index):
         return
 
     results = find_query(index, query)
