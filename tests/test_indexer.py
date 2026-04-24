@@ -104,3 +104,48 @@ def test_build_index_handles_repeated_words():
 
     assert index["good"]["pages"]["page1"]["frequency"] == 2
     assert index["good"]["pages"]["page1"]["positions"] == [0, 1]
+
+def test_build_index_handles_empty_content():
+    """
+    A page with empty content should not crash the indexer.
+    """
+    pages = [
+        {
+            "url": "page1",
+            "content": "",
+        }
+    ]
+
+    index = build_index(pages)
+
+    assert index == {}
+
+
+def test_build_index_skips_page_without_url():
+    """
+    Malformed page records without a URL should be skipped.
+    """
+    pages = [
+        {
+            "content": "life is good",
+        }
+    ]
+
+    index = build_index(pages)
+
+    assert index == {}
+
+
+def test_build_index_handles_missing_content():
+    """
+    Page records with missing content should be treated as empty content.
+    """
+    pages = [
+        {
+            "url": "page1",
+        }
+    ]
+
+    index = build_index(pages)
+
+    assert index == {}
