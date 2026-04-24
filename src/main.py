@@ -72,17 +72,13 @@ def handle_build() -> dict | None:
 def handle_load() -> dict | None:
     """
     Load the saved inverted index from disk.
-
-    Returns:
-        dict | None:
-            The loaded index if successful, otherwise None.
     """
     print_info(f"Loading index from {INDEX_FILEPATH}...")
 
     index = load_index(INDEX_FILEPATH)
 
     if index is None:
-        print_error("Index could not be loaded.")
+        print_error("No saved index found. Run 'build' first.")
         return None
 
     summary = get_index_summary(index)
@@ -91,6 +87,7 @@ def handle_load() -> dict | None:
         f"Index loaded successfully from {INDEX_FILEPATH} "
         f"with {summary['unique_terms']} unique terms"
     )
+
     return index
 
 def handle_print(index: dict | None, word: str) -> None:
