@@ -7,7 +7,15 @@ These tests verify word lookup, query processing,
 multi-word search, and edge-case behaviour.
 """
 
-from src.search import format_word_entry, get_word_entry
+from src.search import (
+    compute_tf_idf_score,
+    find_query,
+    format_word_entry,
+    get_pages_for_term,
+    get_query_summary,
+    get_total_documents,
+    get_word_entry,
+)
 
 
 SAMPLE_INDEX = {
@@ -198,3 +206,54 @@ def test_get_query_summary_returns_match_count_and_pages():
         "match_count": 2,
         "pages": ["page1", "page2"],
     }
+
+def test_get_total_documents_counts_unique_pages():
+    """
+    Total document count should count unique pages across the index.
+    """
+    result = get_total_documents(SAMPLE_INDEX)
+
+    assert result == 3
+
+
+def test_compute_tf_idf_score_returns_positive_score_for_matching_page():
+    """
+    TF-IDF score should be positive when query terms appear in the page.
+    """
+    score = compute_tf_idf_score(SAMPLE_INDEX, ["life"], "page1")
+
+    assert score > 0
+
+
+def test_compute_tf_idf_score_returns_zero_for_non_matching_page():
+    """
+    TF-IDF score should be zero when the query term is not in the page.
+    """
+    score = compute_tf_idf_score(SAMPLE_INDEX, ["life"], "page3")
+
+    assert score == 0.0
+
+
+def test_find_query_ranks_results_by_tfidf_score():
+    """
+    Pages with stronger term frequency should appear first.
+    """
+    index = {
+        "life": {
+            "document_frequency": 2,
+            "pages": {
+                "page1": {
+                    "frequency": 3,
+                    "positions": [0, 1, 2],
+                },
+                "page2": {
+                    "frequency": 1,
+                    "positions": [0],
+                },
+            },
+        }
+    }
+
+    result = find_query(index, "life")
+
+    assert result == ["page1", "page2"]
