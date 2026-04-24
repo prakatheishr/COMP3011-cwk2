@@ -132,7 +132,7 @@ def handle_find(index: dict | None, query: str) -> None:
     results = find_query(index, query)
 
     if not results:
-        print_error(f"No results found for query: {query}")
+        print_info(f"No matching pages found for query: {query}")
         return
 
     summary = get_query_summary(results)
