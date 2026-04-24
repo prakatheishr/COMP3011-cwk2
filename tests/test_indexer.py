@@ -149,3 +149,52 @@ def test_build_index_handles_missing_content():
     index = build_index(pages)
 
     assert index == {}
+
+from src.indexer import load_index, save_index
+
+
+def test_save_and_load_index_round_trip(tmp_path):
+    """
+    Saved index should load back exactly the same.
+    """
+    index = {
+        "life": {
+            "document_frequency": 1,
+            "pages": {
+                "page1": {
+                    "frequency": 2,
+                    "positions": [0, 2],
+                }
+            },
+        }
+    }
+
+    filepath = tmp_path / "index.json"
+
+    save_index(index, str(filepath))
+    loaded_index = load_index(str(filepath))
+
+    assert loaded_index == index
+
+
+def test_load_index_returns_none_for_missing_file(tmp_path):
+    """
+    Loading a missing index file should return None rather than crashing.
+    """
+    filepath = tmp_path / "missing_index.json"
+
+    loaded_index = load_index(str(filepath))
+
+    assert loaded_index is None
+
+
+def test_load_index_returns_none_for_invalid_json(tmp_path):
+    """
+    Loading invalid JSON should return None rather than crashing.
+    """
+    filepath = tmp_path / "bad_index.json"
+    filepath.write_text("{not valid json", encoding="utf-8")
+
+    loaded_index = load_index(str(filepath))
+
+    assert loaded_index is None
