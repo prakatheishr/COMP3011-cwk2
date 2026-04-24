@@ -114,7 +114,8 @@ def test_handle_print_after_index_loaded_outputs_word_entry(capsys):
     captured = capsys.readouterr()
 
     assert "Word 'life' found" in captured.out
-    assert "document_frequency" in captured.out
+    assert "frequency: 2" in captured.out
+    assert "positions: [0, 1]" in captured.out
 
 
 def test_handle_find_after_index_loaded_outputs_matching_pages(capsys):
