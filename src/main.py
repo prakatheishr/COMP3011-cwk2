@@ -85,7 +85,12 @@ def handle_load() -> dict | None:
         print_error("Index could not be loaded.")
         return None
 
-    print_success(f"Index loaded successfully from {INDEX_FILEPATH}")
+    summary = get_index_summary(index)
+
+    print_success(
+        f"Index loaded successfully from {INDEX_FILEPATH} "
+        f"with {summary['unique_terms']} unique terms"
+    )
     return index
 
 def handle_print(index: dict | None, word: str) -> None:
@@ -96,8 +101,7 @@ def handle_print(index: dict | None, word: str) -> None:
         index (dict | None): The current in-memory index.
         word (str): The word to look up.
     """
-    if index is None:
-        print_error("No index loaded. Run 'build' or 'load' first.")
+    if not ensure_index_loaded(index):
         return
 
     word_entry = format_word_entry(index, word)
@@ -117,8 +121,7 @@ def handle_find(index: dict | None, query: str) -> None:
         index (dict | None): The current in-memory index.
         query (str): The raw query string.
     """
-    if index is None:
-        print_error("No index loaded. Run 'build' or 'load' first.")
+    if not ensure_index_loaded(index):
         return
 
     results = find_query(index, query)
@@ -129,9 +132,33 @@ def handle_find(index: dict | None, query: str) -> None:
         return
 
     print_info(f"Query '{query}' matched {summary['match_count']} page(s)")
-    for page in summary["pages"]:
-        print(page)
+    display_search_results(summary["pages"])
 
+def ensure_index_loaded(index: dict | None) -> bool:
+    """
+    Check whether an index is currently loaded in memory.
+
+    Parameters:
+        index (dict | None): The current in-memory index.
+
+    Returns:
+        bool: True if an index is available, otherwise False.
+    """
+    if index is None:
+        print_error("No index loaded. Run 'build' or 'load' first.")
+        return False
+
+    return True
+
+def display_search_results(results: list[str]) -> None:
+    """
+    Print matching search result pages line by line.
+
+    Parameters:
+        results (list[str]): List of matching page URLs.
+    """
+    for page in results:
+        print(page)
 
 def run_shell() -> None:
     """
@@ -154,28 +181,31 @@ def run_shell() -> None:
             print_info("Exiting search tool...")
             break
 
-        elif command == "build":
+        if command == "build":
             index = handle_build()
+            continue
 
-        elif command == "load":
+        if command == "load":
             index = handle_load()
+            continue
 
-        elif command.startswith("print "):
+        if command.startswith("print "):
             word = command[6:].strip()
             if not word:
                 print_error("Please provide a word to print.")
                 continue
             handle_print(index, word)
+            continue
 
-        elif command.startswith("find "):
+        if command.startswith("find "):
             query = command[5:].strip()
             if not query:
                 print_error("Query cannot be empty.")
                 continue
             handle_find(index, query)
+            continue
 
-        else:
-            print_error("Invalid command.")
+        print_error("Invalid command.")
 
 if __name__ == "__main__":
     run_shell()
