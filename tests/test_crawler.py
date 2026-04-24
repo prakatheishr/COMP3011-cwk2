@@ -219,3 +219,41 @@ def test_crawl_site_traverses_pages_until_no_next(monkeypatch):
     assert pages[1]["page_number"] == 2
     assert pages[0]["url"] == "https://quotes.toscrape.com/"
     assert pages[1]["url"] == "https://quotes.toscrape.com/page/2/"
+
+from src.crawler import wait_if_needed
+
+
+def test_wait_if_needed_does_not_sleep_on_first_request(monkeypatch):
+    """
+    Check that the first request does not trigger a delay.
+    """
+    sleep_calls = []
+
+    def mock_sleep(seconds):
+        sleep_calls.append(seconds)
+
+    monkeypatch.setattr("time.sleep", mock_sleep)
+
+    wait_if_needed(last_request_time=None, delay=6)
+
+    assert sleep_calls == []
+
+
+def test_wait_if_needed_sleeps_remaining_time(monkeypatch):
+    """
+    Check that wait_if_needed sleeps only for the remaining delay time.
+    """
+    sleep_calls = []
+
+    def mock_time():
+        return 10.0
+
+    def mock_sleep(seconds):
+        sleep_calls.append(seconds)
+
+    monkeypatch.setattr("time.time", mock_time)
+    monkeypatch.setattr("time.sleep", mock_sleep)
+
+    wait_if_needed(last_request_time=6.0, delay=6)
+
+    assert sleep_calls == [2.0]
