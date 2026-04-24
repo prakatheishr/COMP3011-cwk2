@@ -198,3 +198,20 @@ def test_load_index_returns_none_for_invalid_json(tmp_path):
     loaded_index = load_index(str(filepath))
 
     assert loaded_index is None
+
+from src.indexer import get_index_summary
+
+
+def test_get_index_summary_returns_unique_term_count():
+    """
+    Index summary should report the number of unique indexed terms.
+    """
+    index = {
+        "life": {},
+        "good": {},
+        "friends": {},
+    }
+
+    summary = get_index_summary(index)
+
+    assert summary == {"unique_terms": 3}
