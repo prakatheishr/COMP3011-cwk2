@@ -97,7 +97,6 @@ def handle_print(index: dict | None, word: str) -> None:
     if not ensure_index_loaded(index):
         return
 
-    # Normalize input
     word = word.strip()
 
     if not word:
@@ -114,7 +113,11 @@ def handle_print(index: dict | None, word: str) -> None:
         f"Word '{word_entry['word']}' found in "
         f"{word_entry['document_frequency']} page(s)"
     )
-    print(word_entry)
+
+    for page_url, stats in word_entry["pages"].items():
+        print(f"- {page_url}")
+        print(f"  frequency: {stats['frequency']}")
+        print(f"  positions: {stats['positions']}")
 
 def handle_find(index: dict | None, query: str) -> None:
     """
@@ -158,13 +161,23 @@ def ensure_index_loaded(index: dict | None) -> bool:
 
 def display_search_results(results: list[str]) -> None:
     """
-    Print matching search result pages line by line.
-
-    Parameters:
-        results (list[str]): List of matching page URLs.
+    Display search result URLs line by line.
     """
-    for page in results:
-        print(page)
+    for position, page in enumerate(results, start=1):
+        print(f"{position}. {page}")
+
+def print_help() -> None:
+    """
+    Display available CLI commands.
+    """
+    print_info("Available commands:")
+    print("  build              Crawl the website and build a new index")
+    print("  load               Load the saved index from disk")
+    print("  print <word>       Show the inverted index entry for a word")
+    print("  find <query>       Find pages containing all query terms")
+    print("  help               Show this help message")
+    print("  exit               Exit the program")
+
 
 def run_shell() -> None:
     """
@@ -174,8 +187,7 @@ def run_shell() -> None:
     index = None
 
     print_info("COMP3011 Search Tool")
-    print_info("Available commands: build, load, print <word>, find <query>, exit")
-    print_info("Type 'exit' to quit the program.")
+    print_help()
 
     while True:
         command = input("> ").strip()
@@ -187,6 +199,10 @@ def run_shell() -> None:
         if command == "exit":
             print_info("Exiting search tool...")
             break
+
+        if command == "help":
+            print_help()
+            continue
 
         if command == "build":
             if index is not None:
