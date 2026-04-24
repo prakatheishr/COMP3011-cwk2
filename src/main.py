@@ -132,6 +132,21 @@ def handle_find(index: dict | None, query: str) -> None:
     for page in summary["pages"]:
         print(page)
 
+def ensure_index_loaded(index: dict | None) -> bool:
+    """
+    Check whether an index is currently loaded in memory.
+
+    Parameters:
+        index (dict | None): The current in-memory index.
+
+    Returns:
+        bool: True if an index is available, otherwise False.
+    """
+    if index is None:
+        print_error("No index loaded. Run 'build' or 'load' first.")
+        return False
+
+    return True
 
 def run_shell() -> None:
     """
