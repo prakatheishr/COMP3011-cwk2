@@ -181,28 +181,31 @@ def run_shell() -> None:
             print_info("Exiting search tool...")
             break
 
-        elif command == "build":
+        if command == "build":
             index = handle_build()
+            continue
 
-        elif command == "load":
+        if command == "load":
             index = handle_load()
+            continue
 
-        elif command.startswith("print "):
+        if command.startswith("print "):
             word = command[6:].strip()
             if not word:
                 print_error("Please provide a word to print.")
                 continue
             handle_print(index, word)
+            continue
 
-        elif command.startswith("find "):
+        if command.startswith("find "):
             query = command[5:].strip()
             if not query:
                 print_error("Query cannot be empty.")
                 continue
             handle_find(index, query)
+            continue
 
-        else:
-            print_error("Invalid command.")
+        print_error("Invalid command.")
 
 if __name__ == "__main__":
     run_shell()
