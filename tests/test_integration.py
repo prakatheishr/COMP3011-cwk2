@@ -141,3 +141,29 @@ def test_handle_find_after_index_loaded_outputs_matching_pages(capsys):
     assert "Query 'good friends' matched" in captured.out
     assert "page1" in captured.out
     assert "page2" not in captured.out
+
+from src import main
+
+
+def test_handle_load_reads_saved_index_from_configured_path(tmp_path, monkeypatch):
+    """
+    handle_load should load the saved index from the configured index filepath.
+    """
+    pages = [
+        {
+            "url": "page1",
+            "content": "life is good",
+        }
+    ]
+
+    index = build_index(pages)
+
+    filepath = tmp_path / "index.json"
+    save_index(index, str(filepath))
+
+    # Redirect main.INDEX_FILEPATH to the temporary test file
+    monkeypatch.setattr(main, "INDEX_FILEPATH", str(filepath))
+
+    loaded_index = main.handle_load()
+
+    assert loaded_index == index
