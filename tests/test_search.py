@@ -120,3 +120,47 @@ def test_find_query_returns_empty_list_if_one_term_missing():
     result = find_query(SAMPLE_INDEX, "good missingword")
 
     assert result == []
+
+def test_find_query_is_case_insensitive():
+    """
+    Query matching should be case-insensitive.
+    """
+    result = find_query(SAMPLE_INDEX, "GOOD FRIENDS")
+
+    assert result == ["page1", "page3"]
+
+
+def test_find_query_handles_punctuation_heavy_query():
+    """
+    Query tokenizer should remove punctuation before searching.
+    """
+    result = find_query(SAMPLE_INDEX, "good!!! friends???")
+
+    assert result == ["page1", "page3"]
+
+
+def test_find_query_empty_query_returns_empty_list():
+    """
+    Empty query should return no results.
+    """
+    result = find_query(SAMPLE_INDEX, "")
+
+    assert result == []
+
+
+def test_find_query_punctuation_only_query_returns_empty_list():
+    """
+    Query with no valid tokens should return no results.
+    """
+    result = find_query(SAMPLE_INDEX, "!!! ??? ...")
+
+    assert result == []
+
+
+def test_find_query_repeated_terms_do_not_change_results():
+    """
+    Repeated query terms should not break or alter results.
+    """
+    result = find_query(SAMPLE_INDEX, "life life")
+
+    assert result == ["page1", "page2"]
