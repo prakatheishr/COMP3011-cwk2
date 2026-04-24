@@ -166,6 +166,19 @@ def display_search_results(results: list[str]) -> None:
     for position, page in enumerate(results, start=1):
         print(f"{position}. {page}")
 
+def print_help() -> None:
+    """
+    Display available CLI commands.
+    """
+    print_info("Available commands:")
+    print("  build              Crawl the website and build a new index")
+    print("  load               Load the saved index from disk")
+    print("  print <word>       Show the inverted index entry for a word")
+    print("  find <query>       Find pages containing all query terms")
+    print("  help               Show this help message")
+    print("  exit               Exit the program")
+
+
 def run_shell() -> None:
     """
     Run the interactive command-line shell.
@@ -174,8 +187,7 @@ def run_shell() -> None:
     index = None
 
     print_info("COMP3011 Search Tool")
-    print_info("Available commands: build, load, print <word>, find <query>, exit")
-    print_info("Type 'exit' to quit the program.")
+    print_help()
 
     while True:
         command = input("> ").strip()
@@ -187,6 +199,10 @@ def run_shell() -> None:
         if command == "exit":
             print_info("Exiting search tool...")
             break
+
+        if command == "help":
+            print_help()
+            continue
 
         if command == "build":
             if index is not None:
