@@ -188,6 +188,8 @@ def run_shell() -> None:
             break
 
         if command == "build":
+            if index is not None:
+                print_info("Index already exists in memory. Rebuilding will overwrite it.")
             index = handle_build()
             continue
 
