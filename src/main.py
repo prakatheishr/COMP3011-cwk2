@@ -119,20 +119,23 @@ def handle_print(index: dict | None, word: str) -> None:
 def handle_find(index: dict | None, query: str) -> None:
     """
     Search the index for a query and print matching pages.
-
-    Parameters:
-        index (dict | None): The current in-memory index.
-        query (str): The raw query string.
     """
     if not ensure_index_loaded(index):
         return
 
+    query = query.strip()
+
+    if not query:
+        print_error("Query cannot be empty.")
+        return
+
     results = find_query(index, query)
-    summary = get_query_summary(results)
 
     if not results:
         print_error(f"No results found for query: {query}")
         return
+
+    summary = get_query_summary(results)
 
     print_info(f"Query '{query}' matched {summary['match_count']} page(s)")
     display_search_results(summary["pages"])
