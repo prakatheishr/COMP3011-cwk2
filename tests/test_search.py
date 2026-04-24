@@ -91,3 +91,32 @@ def test_format_word_entry_returns_display_friendly_structure():
         "document_frequency": 2,
         "pages": SAMPLE_INDEX["life"]["pages"],
     }
+
+from src.search import find_query
+
+
+def test_find_query_single_word_returns_matching_pages():
+    """
+    Single-word query should return all pages containing that word.
+    """
+    result = find_query(SAMPLE_INDEX, "life")
+
+    assert result == ["page1", "page2"]
+
+
+def test_find_query_multi_word_returns_intersection():
+    """
+    Multi-word query should return only pages containing all query terms.
+    """
+    result = find_query(SAMPLE_INDEX, "good friends")
+
+    assert result == ["page1", "page3"]
+
+
+def test_find_query_returns_empty_list_if_one_term_missing():
+    """
+    If any query term is missing, no pages should match.
+    """
+    result = find_query(SAMPLE_INDEX, "good missingword")
+
+    assert result == []
