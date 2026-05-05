@@ -90,34 +90,28 @@ def handle_load() -> dict | None:
 
     return index
 
-def handle_print(index: dict | None, word: str) -> None:
+def handle_print(index, word):
     """
-    Print the inverted index entry for a given word.
+    Handle the print <word> command.
+    Displays index entry if word exists, otherwise informs user it does not exist.
     """
-    if not ensure_index_loaded(index):
+    if index is None:
+        print_error("No index loaded. Please run 'build' or 'load' first.")
         return
 
-    word = word.strip()
+    entry = get_word_entry(index, word)
 
-    if not word:
-        print_error("Please provide a valid word.")
+    if entry is None:
+        print_info(f"Word '{word}' not found in index")
         return
 
-    word_entry = format_word_entry(index, word)
+    # If word exists → display it
+    print_info(f"Word '{word}' found in {entry['document_frequency']} page(s)")
 
-    if word_entry is None:
-        print_error(f"Word not found in index: {word}")
-        return
-
-    print_info(
-        f"Word '{word_entry['word']}' found in "
-        f"{word_entry['document_frequency']} page(s)"
-    )
-
-    for page_url, stats in word_entry["pages"].items():
-        print(f"- {page_url}")
-        print(f"  frequency: {stats['frequency']}")
-        print(f"  positions: {stats['positions']}")
+    for page, data in entry["pages"].items():
+        print(f"- {page}")
+        print(f"  frequency: {data['frequency']}")
+        print(f"  positions: {data['positions']}")
 
 def handle_find(index: dict | None, query: str) -> None:
     """
