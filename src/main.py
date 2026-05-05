@@ -11,7 +11,7 @@ This module is responsible for:
 
 from src.crawler import crawl_site
 from src.indexer import build_index, get_index_summary, load_index, save_index
-from src.search import find_query, format_word_entry, get_query_summary
+from src.search import find_query, format_word_entry, get_query_summary, get_word_entry
 
 # Starting page for the crawler
 START_URL = "https://quotes.toscrape.com/"
